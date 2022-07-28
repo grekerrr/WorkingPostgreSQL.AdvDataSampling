@@ -15,10 +15,15 @@ JOIN tracks t ON a.albumid = t.album_id
 GROUP BY a.album_title
 
 -- 4.все исполнители, которые не выпустили альбомы в 2020 году
-SELECT p.performer_name, a.release_year_album FROM performers p
-JOIN performers_albums pa ON p.performersid = pa.performersid 
-JOIN albums a ON pa.albumid = a.albumid
-WHERE a.release_year_album != 2020
+--SELECT p.performer_name, a.release_year_album FROM performers p --кто выпустил хоть что-то, кроме того, что выпустил в 2020
+--JOIN performers_albums pa ON p.performersid = pa.performersid 
+--JOIN albums a ON pa.albumid = a.albumid
+--WHERE a.release_year_album != 2020
+SELECT p.performer_name FROM performers p  --кто не выпустил альбомы в 2020 году
+WHERE performersid NOT IN (SELECT performersid FROM performers_albums pa
+                 WHERE albumid IN (SELECT albumid FROM albums a3
+                                   WHERE a3.release_year_album = 2020)
+                 )
 
 -- 5.названия сборников, в которых присутствует конкретный исполнитель (выберите сами)
 SELECT distinct c.collection_name FROM collections c
@@ -57,4 +62,5 @@ GROUP BY a.album_title
       SELECT COUNT(t.trackid) FROM albums a2 
       GROUP BY a.album_title
       ORDER BY count(t.trackid)
+      LIMIT 1
    )
